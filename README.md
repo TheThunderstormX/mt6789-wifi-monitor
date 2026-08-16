@@ -30,13 +30,13 @@ kprobe.
 
 ```mermaid
 flowchart LR
-    A["802.11 frames<br/>on the channel"] --> B{"chip RX filter<br/>RFCR 0x820f5000"}
-    B -- "default<br/>0x000cef1b" --> X["dropped<br/>inside chip"]
-    B -- "monx writes<br/>0x0000e00b" --> C["driver RX path<br/>nicRxProcessDataPacket"]
-    C --> D["monx4 kprobe<br/>copies raw RX buffer"]
-    D --> E[("/proc/monx4<br/>kfifo")]
-    E --> F["wrap_pcap.py<br/>radiotap pcap"]
-    F --> G["Wireshark /<br/>airodump-ng"]
+    A["802.11 frames on the channel"] --> B{"chip RX filter RFCR 0x820f5000"}
+    B -->|"default 0x000cef1b"| X["dropped inside chip"]
+    B -->|"monx writes 0x0000e00b"| C["driver RX: nicRxProcessDataPacket"]
+    C --> D["monx4 kprobe: copy raw RX buffer"]
+    D --> E["/proc/monx4 (kfifo)"]
+    E --> F["wrap_pcap.py: radiotap pcap"]
+    F --> G["Wireshark / airodump-ng"]
 ```
 
 `monx.ko` writes the chip's RX filter register in **normal mode** (association
