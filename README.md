@@ -1,19 +1,51 @@
 # mt6789-wifi-monitor
 
-Monitor-mode 802.11 capture on the **internal** Wi-Fi of MediaTek MT6789
-(Helio G99) phones — no external USB adapter. Both 2.4 and 5 GHz.
+> Monitor-mode 802.11 capture on the **internal** Wi-Fi of MediaTek MT6789 (Helio G99) phones — no external USB adapter, 2.4 and 5 GHz.
+
+[![license](https://img.shields.io/badge/license-GPL--2.0-blue)](LICENSE)
+![platform](https://img.shields.io/badge/platform-Android%2016%20%E2%80%A2%20MT6789-3ddc84)
+![chip](https://img.shields.io/badge/chip-connac2%20%E2%80%A2%20Helio%20G99-orange)
+![bands](https://img.shields.io/badge/bands-2.4%20%2B%205%20GHz-blueviolet)
+![adapter](https://img.shields.io/badge/external%20adapter-none-success)
+![status](https://img.shields.io/badge/status-PoC%20%2F%20research-yellow)
 
 The stock driver exposes no monitor mode: it never advertises the `monitor`
 interface type, its promiscuous entry points are stubs, and the built-in sniffer
-code has no call path. The radio still receives every frame on-channel; the chip
+code has no call path. The radio still receives every frame on-channel — the chip
 just drops what isn't addressed to us, before the driver sees it. This opens the
-chip's hardware RX filter and captures the frames off the driver's RX path with a
-kprobe. See [docs/MECHANISM.md](docs/MECHANISM.md).
+chip's hardware RX filter and lifts the frames off the driver's RX path with a
+kprobe.
 
-Developed and verified on a Redmi Note 13 Pro 4G / POCO M6 Pro (`emerald`,
-MT6789, HyperOS / Android 16, GKI kernel `6.12.30-android16-5`). The internal
-chip is connac2-class; the same approach should carry to other MT6789 / connac2
-devices, with device-specific register/symbol addresses.
+|  |  |
+|---|---|
+| **Device** | Redmi Note 13 Pro 4G / POCO M6 Pro (`emerald`) |
+| **SoC / chip** | MediaTek MT6789 (Helio G99), connac2 internal Wi-Fi |
+| **Kernel** | stock Google GKI `6.12.30-android16-5` (Android 16) |
+| **Needs** | root only — no unlocked bootloader, no external adapter |
+| **2.4 GHz data-lock** | ✅ working (verified on-device) |
+| **5 GHz discovery** | ✅ working (channel hop) |
+| **5 GHz data-lock** | ⬜ open — band-1 RFCR ([docs/BAND1-5GHZ.md](docs/BAND1-5GHZ.md)) |
+
+## How it works
+
+```mermaid
+flowchart LR
+    A["802.11 frames<br/>on the channel"] --> B{"chip RX filter<br/>RFCR 0x820f5000"}
+    B -- "default<br/>0x000cef1b" --> X["dropped<br/>inside chip"]
+    B -- "monx writes<br/>0x0000e00b" --> C["driver RX path<br/>nicRxProcessDataPacket"]
+    C --> D["monx4 kprobe<br/>copies raw RX buffer"]
+    D --> E[("/proc/monx4<br/>kfifo")]
+    E --> F["wrap_pcap.py<br/>radiotap pcap"]
+    F --> G["Wireshark /<br/>airodump-ng"]
+```
+
+`monx.ko` writes the chip's RX filter register in **normal mode** (association
+stays up), clearing the `DROP_*` bits so the chip forwards the whole channel.
+`monx4.ko` kprobes the driver RX entry points and copies each raw chip RX buffer
+(connac RXD + the 802.11 frame) into a kfifo at `/proc/monx4`. On the host,
+`wrap_pcap.py` wraps the frames in radiotap and `dev_inventory.py` inventories
+APs and probing clients. Full detail: [docs/MECHANISM.md](docs/MECHANISM.md),
+[docs/REGISTERS.md](docs/REGISTERS.md).
 
 ## What works
 
@@ -22,21 +54,15 @@ devices, with device-specific register/symbol addresses.
 - Output opens in Wireshark / tshark / airodump-ng.
 
 Last on-device check: an 8 s hop captured 162 frames and enumerated 6 APs across
-channels 6/11/12/44 (2.4 + 5 GHz), no kernel panic. Modules built from the
-sources in `src/`.
+channels 6/11/12/44 (2.4 + 5 GHz), no kernel panic. Modules built from `src/`.
 
-## Requirements
-
-- Root (this was tested with Magisk).
-- Unlocked bootloader is **not** needed to run the modules — only root.
-- The two kernel modules, built for your device's kernel (see below).
-
-## Quick start
+<details>
+<summary><b>Quick start</b> — build, push, capture</summary>
 
 ```sh
 # build (see docs/BUILD.md for the toolchain and the CRC trick)
 cd src && KDIR=~/gki-src make          # -> monx.ko, monx4.ko
-# or use prebuilt/ if your device runs the same firmware as above
+# or use prebuilt/ if your device runs the same firmware
 
 adb push monx.ko monx4.ko scripts/mon_capture.sh scripts/hop_capture.sh /data/local/tmp/
 
@@ -51,25 +77,20 @@ adb pull /data/local/tmp/monx4_cap.bin
 python3 scripts/dev_inventory.py monx4_cap.bin              # AP + client list
 ```
 
-## How it works (one paragraph)
+Read a chip register live (normal mode): `sh scripts/read_reg.sh 0x820f5000`.
+</details>
 
-`monx.ko` writes the chip's RX filter register (RFCR `0x820f5000`) in normal mode
-via the driver's private `set_mcr` handler, clearing the `DROP_*` bits so the
-chip forwards the whole channel to the driver. `monx4.ko` kprobes the driver RX
-entry points and copies each raw chip RX buffer (connac RXD + the 802.11 frame)
-into a kfifo at `/proc/monx4`. On the host, `wrap_pcap.py` wraps the frames in
-radiotap and `dev_inventory.py` inventories APs and probing clients. Full detail:
-[docs/MECHANISM.md](docs/MECHANISM.md), [docs/REGISTERS.md](docs/REGISTERS.md).
-
-## Layout
+<details>
+<summary><b>Repo layout</b></summary>
 
 ```
 src/         monx.c (RFCR writer), monx4.c (kprobe capture), Makefile
-scripts/     capture (device, sh) + post-processing (host, python)
-docs/        MECHANISM, REGISTERS, HQA-PROTOCOL, BUILD
+scripts/     capture (device, sh) + post-processing (host, python) + read_reg.sh
+docs/        MECHANISM, REGISTERS, HQA-PROTOCOL, BUILD, BAND1-5GHZ
 reference/   device kernel config, symbol CRCs, HQA command table, pentest fragment
 prebuilt/    modules + HQA tools built for the emerald kernel (see prebuilt/README)
 ```
+</details>
 
 ## Limits (hardware, not fixable in software)
 
