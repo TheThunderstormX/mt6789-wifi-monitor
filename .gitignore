@@ -1,0 +1,16 @@
+# kernel module build artifacts (src/ builds in place)
+src/*.o
+src/*.ko
+src/*.mod
+src/*.mod.c
+src/*.mod.o
+src/.*.cmd
+src/Module.symvers
+src/modules.order
+src/.tmp_versions/
+*.symvers
+
+# capture outputs — may contain third-party air data, never commit
+*.pcap
+*_cap.bin
+monx4_cap.bin

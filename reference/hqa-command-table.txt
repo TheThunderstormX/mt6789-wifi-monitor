@@ -1,0 +1,166 @@
+MT6789 / connac2 Wi-Fi chip - HQA/ATE command table
+Extracted by reversing wlan_drv_gen4m (vendor_dlkm). id = base + index.
+"legacy_function" / "todo_function" = present in the table but not named/used.
+See docs/HQA-PROTOCOL.md for the transport and packet format.
+
+===== group 0x1000  (19 commands, .data+0x108b8) =====
+  0x1000  hqa_open_adapter
+  0x1001  hqa_close_adapter
+  0x1002  legacy_function
+  0x1003  legacy_function
+  0x1004  legacy_function
+  0x1005  legacy_function
+  0x1006  legacy_function
+  0x1007  legacy_function
+  0x1008  legacy_function
+  0x1009  hqa_set_tx_path
+  0x100a  hqa_set_rx_path
+  0x100b  legacy_function
+  0x100c  legacy_function
+  0x100d  legacy_function
+  0x100e  legacy_function
+  0x100f  hqa_set_tx_power_ext
+  0x1010  legacy_function
+  0x1011  todo_function
+  0x1012  legacy_function
+
+===== group 0x1100  (12 commands, .data+0x109e8) =====
+  0x1100  legacy_function
+  0x1101  hqa_set_preamble
+  0x1102  hqa_set_rate
+  0x1103  hqa_set_nss
+  0x1104  hqa_set_system_bw
+  0x1105  hqa_set_per_pkt_bw
+  0x1106  legacy_function
+  0x1107  hqa_set_freq_offset
+  0x1108  legacy_function
+  0x1109  hqa_low_power
+  0x110a  hqa_get_antswap_capability
+  0x110b  hqa_set_antswap
+
+===== group 0x1200  (5 commands, .data+0x10aa8) =====
+  0x1200  hqa_reset_txrx_counter
+  0x1201  legacy_function
+  0x1202  hqa_cal_bypass
+  0x1203  hqa_set_rx_vector_idx
+  0x1204  hqa_set_fagc_rssi_path
+
+===== group 0x1300  (28 commands, .data+0x10af8) =====   <-- registers / memory
+  0x1300  hqa_mac_bbp_reg_read       <-- read MAC/BBP registers (used to probe the RFCR)
+  0x1301  hqa_mac_bbp_reg_write      <-- write MAC/BBP registers (test-mode; drops link)
+  0x1302  hqa_mac_bbp_reg_bulk_read
+  0x1303  hqa_rf_reg_bulk_read
+  0x1304  hqa_rf_reg_bulk_write
+  0x1305  legacy_function
+  0x1306  legacy_function
+  0x1307  hqa_read_bulk_eeprom
+  0x1308  hqa_write_bulk_eeprom      <-- DO NOT WRITE (EEPROM)
+  0x1309  hqa_check_efuse_mode
+  0x130a  hqa_get_free_efuse_block
+  0x130b  hqa_get_tx_power_v2
+  0x130c  hqa_set_cfg_on_off
+  0x130d  hqa_get_freq_offset
+  0x130e  hqa_dbdc_tx_tone
+  0x130f  hqa_dbdc_continuous_tx
+  0x1310  hqa_set_rx_filter_pkt_len
+  0x1311  hqa_get_tx_info
+  0x1312  hqa_get_cfg_on_off
+  0x1313  legacy_function
+  0x1314  hqa_set_bufferbin
+  0x1315  legacy_function
+  0x1316  hqa_ca53_reg_read
+  0x1317  hqa_ca53_reg_write
+  0x1318  hqa_get_tx_tone_pwr
+  0x1319  hqa_read_bulk_eeprom_v2
+  0x131a  hqa_write_bulk_eeprom_v2   <-- DO NOT WRITE (EEPROM)
+  0x131b  hqa_get_freq_offset_c2
+
+===== group 0x1400  (1 command, .data+0x10cb8) =====
+  0x1400  hqa_get_thermal_val
+
+===== group 0x1500  (59 commands, .data+0x10cc8) =====
+  0x1500  hqa_get_fw_info
+  0x1501  legacy_function
+  0x1502  hqa_set_stbc
+  0x1503  hqa_set_short_gi
+  0x1504  hqa_set_dpd
+  0x1505  hqa_set_tssi_onoff
+  0x1506  hqa_get_rx_statistics_leg
+  0x1507  legacy_function
+  0x1508  legacy_function
+  0x1509  hqa_calibration_test_mode
+  0x150a  hqa_do_cal_item
+  0x150b  hqa_tmr_setting
+  0x150c  legacy_function
+  0x150d  hqa_write_buffer_done
+  0x150e  legacy_function
+  0x150f  legacy_function
+  0x1510  hqa_get_chipid
+  0x1511  hqa_mps_set_seq_data
+  0x1512  hqa_mps_set_payload_length
+  0x1513  hqa_mps_set_packet_count
+  0x1514  hqa_mps_set_power_gain
+  0x1515  hqa_mps_start
+  0x1516  hqa_mps_stop
+  0x1517  hqa_get_rx_statistics_all
+  0x1518  hqa_get_capability
+  0x1519  hqa_get_rf_type_capability
+  0x151a  hqa_get_rx_statistics_tlv
+  0x151b  legacy_function
+  0x151c  hqa_check_efuse_mode_type
+  0x151d  hqa_check_efuse_nativemode_type
+  0x151e  legacy_function
+  0x151f  legacy_function
+  0x1520  legacy_function
+  0x1521  legacy_function
+  0x1522  legacy_function
+  0x1523  legacy_function
+  0x1524  hqa_set_band_mode
+  0x1525  hqa_get_band_mode
+  0x1526  hqa_rdd_start
+  0x1527  hqa_rdd_stop
+  0x1528  legacy_function
+  0x1529  legacy_function
+  0x152a  hqa_log_on_off
+  0x152b  legacy_function
+  0x152c  legacy_function
+  0x152d  hqa_mps_set_nss
+  0x152e  hqa_mps_set_per_packet_bw
+  0x152f  hqa_icap_ctrl
+  0x1530  hqa_get_dump_recal
+  0x1531  hqa_get_dump_rxv
+  0x1532  hqa_get_dump_rdd
+  0x1533  hqa_get_hetb_info
+  0x1534  hqa_set_ru_info
+  0x1535  hqa_pl_calibration
+  0x1536  hqa_set_efem_mode
+  0x1537  hqa_set_tx_gain
+  0x1538  hqa_set_etssi_gain
+  0x1539  hqa_get_tssi_meas_dbv
+  0x153a  hqa_get_sleep_check
+
+===== group 0x1600  (24 commands, .data+0x11078) =====
+  0x1600  hqa_set_channel_ext
+  0x1601  hqa_set_txcontent_ext
+  0x1602  hqa_start_tx_ext
+  0x1603  hqa_start_rx_ext
+  0x1604  hqa_stop_tx_ext
+  0x1605  hqa_stop_rx_ext
+  0x1606  legacy_function
+  0x1607  legacy_function
+  0x1608  legacy_function
+  0x1609  legacy_function
+  0x160a  legacy_function
+  0x160b  legacy_function
+  0x160c  hqa_listmode_tx_seg
+  0x160d  hqa_listmode_tx_cmd
+  0x160e  legacy_function
+  0x160f  hqa_listmode_tx_cmd
+  0x1610  hqa_listmode_rx_seg
+  0x1611  hqa_listmode_rx_cmd
+  0x1612  hqa_listmode_rx_get_status
+  0x1613  hqa_listmode_rx_cmd
+  0x1614  hqa_set_tx_time
+  0x1615  hqa_off_ch_scan
+  0x1616  hqa_get_default_power
+  0x1617  hqa_listmode_gencfg

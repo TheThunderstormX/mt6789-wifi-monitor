@@ -1,0 +1,13 @@
+# device shell scripts and host python must stay LF (they run on Android / *nix)
+*.sh   text eol=lf
+*.py   text eol=lf
+*.c    text eol=lf
+*.h    text eol=lf
+Makefile text eol=lf
+
+# binaries
+*.ko            binary
+prebuilt/hqax     binary
+prebuilt/hqacmd   binary
+prebuilt/hqascan  binary
+prebuilt/icstool  binary
